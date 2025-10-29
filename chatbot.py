@@ -5,7 +5,7 @@ from langchain.prompts import PromptTemplate
 import os
 load_dotenv()
 gemini_api_key=os.getenv("GEMINI_AI_API")
-llm=GoogleGenerativeAI(model="gemini-2.5-flash",api_key="")
+llm=GoogleGenerativeAI(model="gemini-2.5-flash",api_key=gemini_api_key)
 st.title("chatbot")
 prompt=st.chat_input("enter any query")
 if prompt:
@@ -15,7 +15,3 @@ if prompt:
     result=llm.invoke(prompt+"return in avalid markdown format")
     if result:
         ai_message.markdown(result)
-
-
-
-

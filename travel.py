@@ -27,7 +27,6 @@ class GraphState(TypedDict):
 
 # Node 1: Collect preferences (simulated here)
 def collected_preference(state):
-    # Normally you'd use state input, but simulate for now
     return {
         "destination_type": state.get("destination_type"),
         "budget": state.get("budget"),
@@ -53,7 +52,7 @@ def recommended_destination(state):
 def budget_planning(state):
     prompt = f"""
     The user selected {state.get("final_destination")}. Their budget is {state.get("budget")}.
-    Provide a rough budget breakdown for flights, accommodation, food, activities, and miscellaneous.
+    Provide a rough budget breakdown for flights, accommodation, food, activities, and miscellaneous in a valid markdown format.
     """
     response = llm.invoke(prompt)
     return {"budget_plan": response}
@@ -63,7 +62,7 @@ def itinerary_building(state):
     prompt = f"""
     Create a 3-day itinerary for {state.get("final_destination")}.
     The user is interested in {state.get("interests")}.
-    Provide it day by day.
+    Provide it day by day in a valid markdown format.
     """
     response = llm.invoke(prompt)
     list_res = response.split("\n")
@@ -114,12 +113,20 @@ if submitted:
     # Run the workflow
     result = ai_travel_planner.invoke(state)
 
-    # Display results
+    # Display results (formatted)
     st.subheader("🗺️ Recommended Places")
-    st.write(result.get("recommended_destination", "No recommendations available."))
+    recommended_places = result.get("recommended_destination", [])
+    if isinstance(recommended_places, list):
+        st.markdown("\n".join(recommended_places))
+    else:
+        st.markdown(recommended_places)
 
     st.subheader("💰 Budget Plan")
-    st.write(result.get("budget_plan", "No budget plan available."))
+    st.markdown(result.get("budget_plan", "No budget plan available."))
 
     st.subheader("📅 Itinerary")
-    st.write(result.get("itinerary", "No itinerary available."))
+    itinerary = result.get("itinerary", [])
+    if isinstance(itinerary, list):
+        st.markdown("\n".join(itinerary))
+    else:
+        st.markdown(itinerary)
